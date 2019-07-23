@@ -12,8 +12,7 @@ reviewers:
 approvers:
   - "@liggitt"
   - "@sttts"
-editor:
-  name: "@deads2k"
+editor: "@deads2k"
 creation-date: 2019-06-12
 last-updated: 2019-06-12
 status: implementable
