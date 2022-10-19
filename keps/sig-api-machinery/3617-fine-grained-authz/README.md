@@ -370,6 +370,48 @@ system administrator has made use of the general permission).
 
 This is a complex design. See the alternatives for why we propose it anyway.
 
+#### Levels of schema control
+
+There are three cases of control 
+
+1. Full control of schema.  This is the case where a new schema is being described
+ and the author can decide to exclude particular fields or values of fields from
+ the general update permission.
+ In this case, the schema author has full control.
+2. Embedding an existing schema into another schema.
+ This is the case where a new schema is being
+ described, but the author embeds another type and therefore cannot exclude particular
+ fields for fields that already have separate permissions.
+ Examples of this would be pod.spec.nodeName or more commonly metadata.labels.
+3. Cluster-admin or other extension excluding values from shipped schema.
+ This is the case where a schema has already been shipped, but there's a need to
+ add restrictions for a field like labels.
+ For instance, sig-auth added namespace label `pod-security.kubernetes.io/enforce`
+ to control permissions of pods on nodes and sig-scheduling added namespace label
+ `scheduler.alpha.kubernetes.io/node-selector` to control which nodes the pods in a
+ particular namespace can land on.
+ In both of these cases, it seems reasonable to allow manipulation of a general
+ object, but restrict access to those labels.
+ The current design cannot accommodate this.
+ 
+<<[UNRESOLVED deads2k's thoughts ]>>
+Can we avoid handling the exclude version case 3?
+
+Can we handle the "include" version of case 3?
+
+I think we do if the field is already marked as needing another check.
+
+To even sensibly express the desired permissions, I think we would need to
+express at runtime (not schema building time), the patterns of labels that should
+be excluded from the UPDATE permission by default.
+Effectively, we would be trying to re-create the idea an admission plugin protecting
+a single label by a secondary ACL check.
+This is an opportunity to have a single permissions model for it if we're willing.
+I'm slightly biased towards trying to establish a generic permissions model with
+an explicit listing of all "exclude" label key names. 
+ 
+<<[/UNRESOLVED]>>
+
 ### Risks and Mitigations
 
 This design avoids the "grant an overly broad permission and then restrict it
